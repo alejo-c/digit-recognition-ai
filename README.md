@@ -1,8 +1,8 @@
-# Handwritten Digit Recognition
+# Digit Recognition AI
 
 This project allows users to draw in a canvas, and categorize the drawings into the 10 digits, from 0 to 9.
 
-The model was trained with the mnist dataset from keras.
+The neural network model was trained with the mnist dataset from keras.
 
 This web application uses HTML, JavaScript and CSS for the UI design and behavior.
 
