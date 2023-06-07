@@ -1,4 +1,4 @@
-# Digits Recognition AI
+# Digit Recognizer AI
 
 This project allows users to draw in a canvas, and categorize the drawings into the 10 digits, from 0 to 9.
 
