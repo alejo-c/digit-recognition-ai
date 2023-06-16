@@ -6,10 +6,35 @@ body {
     padding: 0;
 }
 
-.panel {
+canvas {
+    display: block;
+}
+
+#prediction-section {
     display: inline-flex;
 }
 
-canvas {
+#output-area {
+    margin-left: 2em;
     display: block;
+    font-size: 1.3em;
+}
+
+#output-area .item:first-child {
+    color: rgb(91, 149, 226);
+}
+
+.item {
+    display: flex;
+    align-items: center;
+}
+
+.digit {
+    font-size: 2.5em;
+    margin-right: .05em;
+}
+
+.probability {
+    margin-left: .5em;
+    font-size: .7em;
 }

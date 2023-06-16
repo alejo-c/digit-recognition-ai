@@ -1,7 +1,8 @@
 const getElement = id => document.querySelector(id)
 
 const canvas = getElement('#canvas')
-const outputLabel = getElement('#output')
+const outputArea = getElement('#output-area')
+const outputLabel = 'Digit Confidence:'
 const scaleInput = getElement('#scale-input')
 const lineWidthInput = getElement('#line-width-input')
 const multipleDrawsCheckbox = getElement('#multiple-draws-checkbox')
@@ -27,6 +28,7 @@ const clear = () => {
     ctx.lineWidth = lineWidth * scale
     ctx.lineCap = 'round'
     ctx.strokeStyle = 'white'
+    outputArea.innerHTML = outputLabel
 }
 
 const startDrawing = e => {
@@ -112,7 +114,6 @@ const blockAverages = blocks => {
             }
         }
         row.push(sum / scale ** 2)
-        // row.push((sum / scale ** 2) > 0 ? 1 : 0)
         if (row.length === Math.sqrt(blocks.length)) {
             matrix.push(row)
             row = []
@@ -121,30 +122,12 @@ const blockAverages = blocks => {
     return matrix
 }
 
-const reshape = (matrix, shape) => {
-    const newMatrix = []
-    let row = []
-    for (let i = 0; i < matrix[0].length; i++) {
-        for (let j = 0; j < matrix.length; j++) {
-            let value = matrix[i][j]
-            row.push(value)
-            if (row.length === shape.width) {
-                newMatrix.push(row)
-                row = []
-                break
-            }
-        }
-    }
-    return newMatrix
-}
-
 const fixData = matrix => {
     const fixedMatrix = []
     for (let i = 0; i < matrix.length; i++) {
         let row = []
-        for (let j = 0; j < matrix.length; j++) {
-            row.push(matrix[i][j] / 255)
-        }
+        for (let j = 0; j < matrix.length; j++)
+            row.push([matrix[i][j] / 255])
         fixedMatrix.push(row)
     }
     return fixedMatrix
@@ -156,12 +139,10 @@ const updatePixelMatrix = () => {
     const normalizedPixels = normalizeData(pixelData)
     const bigPixelMatrix = array2Matrix(normalizedPixels, canvas.width)
     const blocks = decomposeMatrix(bigPixelMatrix, scale)
-    const pixelMatrix = blockAverages(blocks)
-    return pixelMatrix
+    pixelMatrix = blockAverages(blocks)
 }
 
 const pixelize = () => {
-    const pixelMatrix = updatePixelMatrix()
     for (let i = 0; i < pixelMatrix.length; i++) {
         for (let j = 0; j < pixelMatrix.length; j++) {
             const pixelValue = Math.floor(pixelMatrix[i][j])
@@ -173,18 +154,36 @@ const pixelize = () => {
 
 const loadModel = async () => await tf.loadLayersModel('digits_model.json')
 
+const drawOutput = output => {
+    outputArea.innerHTML = outputLabel
+    output.forEach(element => {
+        if (element[1] > 0)
+            outputArea.innerHTML += `
+            <div class='item'>
+                <strong class='digit'>
+                    ${element[0]} 
+                </strong>
+                =
+                <span class='probability'>
+                    ${element[1]}%
+                </span>                
+            </div>
+        `
+    });
+}
+
 const predict = () => {
-    const pixelMatrix = updatePixelMatrix()
     const digit = fixData(pixelMatrix)
-    const digitValues = reshape(digit, { width: 784, height: 1 })
-    const input = tf.tensor2d(digitValues)
+    const input = tf.tensor4d([digit])
 
     loadModel().then(model => {
         const output = model.predict(input)
         const probability = output.arraySync()[0]
-        const max = Math.max(...probability)
-        // console.log(probability.indexOf(max), (max * 100).toFixed(4));
-        outputLabel.innerHTML = `${probability.indexOf(max)}`
+        const arr = []
+        probability.forEach((e, i) =>
+            arr.push([i, +(e * 100).toFixed(4)])
+        )
+        drawOutput(arr.sort((a, b) => b[1] - a[1]))
     })
 }
 
