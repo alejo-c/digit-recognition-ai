@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digits Recongnizer AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="neuralnetwork.png" type="image/png">
+</head>
+
+<body>
+    <section id="input-section">
+        <div>
+            <label for="scale-input">Scale:</label>
+            <input type="range" min="2" max="22" step="1" id="scale-input">
+            (<span id="scale">22</span>)
+        </div>
+        <div>
+            <label for="line-width-input">Line Width:</label>
+            <input type="range" min="1" max="4" step="0.1" id="line-width-input">
+            (<span id="line-width">2</span>)
+        </div>
+        <div>
+            <label for="multiple-draws-checkbox">Multiple draws</label>
+            <input type="checkbox" id="multiple-draws-checkbox">
+        </div>
+        <div>
+            <label for="convert-checkbox">Convert to 28 by 28</label>
+            <input type="checkbox" id="convert-checkbox" checked>
+        </div>
+        <button id="clear-btn">Clear</button>
+        <button id="predict-btn">Predict</button>
+
+        <canvas id="canvas"></canvas>
+        <div id="output">~</div>
+    </section>
+
+    <section id="output-section">
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.12.0/dist/tf.min.js"></script>
+    <script src="app.js" type="text/javascript"></script>
+</body>
+
+</html>
