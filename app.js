@@ -54,6 +54,7 @@ const startDrawing = e => {
     if (!allowsMultipleDraws)
         clear()
     canvas.addEventListener('mousemove', draw)
+    canvas.addEventListener('touchmove', draw)
     reposition(e)
     itWasDrawed = true
 }
@@ -68,6 +69,7 @@ const stopDrawing = () => {
         return
     isDrawing = false
     canvas.removeEventListener('mousemove', draw)
+    canvas.removeEventListener('touchmove', draw)
     updatePixelMatrix()
     if (canConvertTo28x28)
         convertTo28x28()
@@ -242,9 +244,14 @@ defaultLineWidthBtn.addEventListener('click', () => {
     lineWidth = lineWidthInput.value = defaultLineWidth
     clear()
 })
+
 canvas.addEventListener('mousedown', startDrawing)
 canvas.addEventListener('mouseup', stopDrawing)
 canvas.addEventListener('mouseout', stopDrawing)
+
+canvas.addEventListener('touchstart', startDrawing)
+canvas.addEventListener('touchend', stopDrawing)
+
 clearBtn.addEventListener('click', clear)
 predictBtn.addEventListener('click', predict)
 document.addEventListener('DOMContentLoaded', clear)
