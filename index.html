@@ -12,43 +12,46 @@
 
 <body>
     <section id="prediction-section">
-        <article id="input-area">
-            <div>
-                <label for="scale-input">Scale:</label>
-                <input type="range" min="2" max="22" step="1" id="scale-input">
-                (<span id="scale">22</span>)
-            </div>
-            <div>
-                <label for="line-width-input">Line Width:</label>
-                <input type="range" min="1" max="4" step="0.1" id="line-width-input">
-                (<span id="line-width">2</span>)
-            </div>
-            <div>
-                <label for="multiple-draws-checkbox">Multiple draws</label>
-                <input type="checkbox" id="multiple-draws-checkbox">
-            </div>
-            <div>
-                <label for="convert-checkbox">Convert to 28 by 28</label>
-                <input type="checkbox" id="convert-checkbox" checked>
-            </div>
-            <div>
-                <button id="clear-btn">Clear</button>
-                <button id="predict-btn">Predict</button>
-            </div>
-
-            <canvas id="canvas"></canvas>
+        <article id="config-area" class="area">
+            <aside>
+                <label for="scale-input"><strong>Scale:</strong></label>
+                <div>
+                    <input type="range" min="3" step="1" id="scale-input">
+                    <button id="default-scale-btn">D</button>
+                    <strong>(<span id="scale-label">24</span>)</strong>
+                </div>
+                <label for="line-width-input"><strong>Line Width:</strong></label>
+                <div>
+                    <input type="range" min="1" max="4" step="0.1" id="line-width-input">
+                    <button id="default-line-width-btn">D</button>
+                    <strong>(<span id="line-width-label">2</span>)</strong>
+                </div>
+                <div class="right">
+                    <div>
+                        <label for="multiple-draws-checkbox">Multiple Draws</label>
+                        <input type="checkbox" id="multiple-draws-checkbox">
+                    </div>
+                    <div>
+                        <label for="convert-checkbox">Convert to 28 by 28</label>
+                        <input type="checkbox" id="convert-checkbox" checked>
+                    </div>
+                    <div id="btn-group">
+                        <button id="clear-btn" class="btn">Clear</button>
+                        <button id="predict-btn" class="btn">Predict</button>
+                    </div>
+                </div>
+            </aside>
         </article>
 
-        <article id="output-area"></article>
-    </section>
-
-    <section id="feedback-section">
-            The prediction is correct?
-        <article id="correct-feedback">
-            <button id="yes">yes</button>
+        <article id="input-area" class="area">
+            <aside>
+                <canvas id="canvas"></canvas>
+            </aside>
         </article>
-        <article id="wrong-feedback">
-            If its wrong, choose the correct digit:
+
+        <article id="output-area" class="area">
+            <div>Digit Confidence:</d>
+                <ul id="probabilities"></ul>
         </article>
     </section>
 

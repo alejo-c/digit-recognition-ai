@@ -1,22 +1,37 @@
 const getElement = id => document.querySelector(id)
 
-const canvas = getElement('#canvas')
-const outputArea = getElement('#output-area')
-const outputLabel = 'Digit Confidence:'
 const scaleInput = getElement('#scale-input')
 const lineWidthInput = getElement('#line-width-input')
+
+const scaleLabel = getElement('#scale-label')
+const lineWidthLabel = getElement('#line-width-label')
+
 const multipleDrawsCheckbox = getElement('#multiple-draws-checkbox')
 const convertCheckbox = getElement('#convert-checkbox')
+const hotColormapCheckbox = getElement('#hot-colormap-checkbox')
+
 const clearBtn = getElement('#clear-btn')
 const predictBtn = getElement('#predict-btn')
+const defaultScaleBtn = getElement('#default-scale-btn')
+const defaultLineWidthBtn = getElement('#default-line-width-btn')
+
+const canvas = getElement('#canvas')
+
+const probabilities = getElement('#probabilities')
 
 const ctx = canvas.getContext('2d')
 const coord = { x: 0, y: 0 }
+const wrongDigitLabel = 'If it\'s wrong, choose the correct digit:<br>'
 
-let scale = scaleInput.value = 21
-let lineWidth = lineWidthInput.value = 2
-let multipleDraws = false
-let convert = true
+const defaultScale = 24
+const defaultLineWidth = 2
+let scale = scaleInput.value = defaultScale
+let lineWidth = lineWidthInput.value = defaultLineWidth
+let isDrawing = false
+let itWasDrawed = false
+let allowsMultipleDraws = false
+let canConvertTo28x28 = true
+let bigPixelMatrix = null
 let pixelMatrix = null
 
 const clear = () => {
@@ -28,14 +43,19 @@ const clear = () => {
     ctx.lineWidth = lineWidth * scale
     ctx.lineCap = 'round'
     ctx.strokeStyle = 'white'
-    outputArea.innerHTML = outputLabel
+
+    scaleLabel.innerHTML = scale
+    lineWidthLabel.innerHTML = lineWidth
+    probabilities.innerHTML = ''
 }
 
 const startDrawing = e => {
-    if (!multipleDraws)
+    isDrawing = true
+    if (!allowsMultipleDraws)
         clear()
     canvas.addEventListener('mousemove', draw)
     reposition(e)
+    itWasDrawed = true
 }
 
 const reposition = e => {
@@ -43,7 +63,17 @@ const reposition = e => {
     coord.y = e.clientY - canvas.offsetTop
 }
 
-const stopDrawing = () => canvas.removeEventListener('mousemove', draw)
+const stopDrawing = () => {
+    if (!isDrawing)
+        return
+    isDrawing = false
+    canvas.removeEventListener('mousemove', draw)
+    updatePixelMatrix()
+    if (canConvertTo28x28)
+        convertTo28x28()
+    if (!allowsMultipleDraws)
+        predict()
+}
 
 const draw = e => {
     ctx.beginPath()
@@ -137,12 +167,12 @@ const updatePixelMatrix = () => {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
     const pixelData = imageData.data
     const normalizedPixels = normalizeData(pixelData)
-    const bigPixelMatrix = array2Matrix(normalizedPixels, canvas.width)
+    bigPixelMatrix = array2Matrix(normalizedPixels, canvas.width)
     const blocks = decomposeMatrix(bigPixelMatrix, scale)
     pixelMatrix = blockAverages(blocks)
 }
 
-const pixelize = () => {
+const convertTo28x28 = () => {
     for (let i = 0; i < pixelMatrix.length; i++) {
         for (let j = 0; j < pixelMatrix.length; j++) {
             const pixelValue = Math.floor(pixelMatrix[i][j])
@@ -155,11 +185,10 @@ const pixelize = () => {
 const loadModel = async () => await tf.loadLayersModel('digits_model.json')
 
 const drawOutput = output => {
-    outputArea.innerHTML = outputLabel
+    probabilities.innerHTML = ''
     output.forEach(element => {
         if (element[1] > 0)
-            outputArea.innerHTML += `
-            <div class='item'>
+            probabilities.innerHTML += `<li class='item'>
                 <strong class='digit'>
                     ${element[0]} 
                 </strong>
@@ -167,12 +196,14 @@ const drawOutput = output => {
                 <span class='probability'>
                     ${element[1]}%
                 </span>                
-            </div>
-        `
-    });
+            </li>`
+    })
 }
 
 const predict = () => {
+    if (!itWasDrawed)
+        return
+
     const digit = fixData(pixelMatrix)
     const input = tf.tensor4d([digit])
 
@@ -189,33 +220,33 @@ const predict = () => {
 
 scaleInput.addEventListener('input', () => {
     scale = scaleInput.value
-    getElement('#scale').innerHTML = scale
     clear()
 })
 lineWidthInput.addEventListener('input', () => {
     lineWidth = lineWidthInput.value
-    getElement('#line-width').innerHTML = lineWidth
     clear()
 })
 multipleDrawsCheckbox.addEventListener('change', () => {
-    multipleDraws = multipleDrawsCheckbox.checked
+    allowsMultipleDraws = multipleDrawsCheckbox.checked
     clear()
 })
 convertCheckbox.addEventListener('change', () => {
-    convert = convertCheckbox.checked
+    canConvertTo28x28 = convertCheckbox.checked
     clear()
 })
-canvas.addEventListener('mouseup', () => {
-    stopDrawing()
-    updatePixelMatrix()
-    if (convert)
-        pixelize()
-    if (!multipleDraws)
-        predict()
+defaultScaleBtn.addEventListener('click', () => {
+    scale = scaleInput.value = defaultScale
+    clear()
+})
+defaultLineWidthBtn.addEventListener('click', () => {
+    lineWidth = lineWidthInput.value = defaultLineWidth
+    clear()
 })
 canvas.addEventListener('mousedown', startDrawing)
+canvas.addEventListener('mouseup', stopDrawing)
 canvas.addEventListener('mouseout', stopDrawing)
 clearBtn.addEventListener('click', clear)
 predictBtn.addEventListener('click', predict)
+document.addEventListener('DOMContentLoaded', clear)
 
-clear()
+scaleInput.setAttribute('max', defaultScale)
