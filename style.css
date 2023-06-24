@@ -3,12 +3,13 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    outline: none;
+    outline: nonek;
+    font-family: 'Courier New';
 }
 
 body {
     color: white;
-    background-color: #333;
+    background-color: #181e27;
     display: inline;
     margin: 0;
     padding: 0;
@@ -16,22 +17,27 @@ body {
 
 #prediction-section {
     display: grid;
-    grid-template-columns: .7fr 1.4fr .8fr;
+    grid-template-columns: .8fr 1.4fr .8fr;
 }
 
 #config-area {
     height: 100vh;
 }
 
-#config-area>aside>* {
-    display: flex;
+.scroller {
+    display: block;
 }
 
-#config-area>aside>.right {
+.scroller>* {
+    display: flex;
+    align-items: center;
+}
+
+.right {
+    display: flex;
     flex-direction: column;
     align-items: end;
 }
-
 
 #btn-group {
     margin-top: 1em;
@@ -45,19 +51,18 @@ body {
 }
 
 #output-area {
-    height: 100vh;
     font-size: 1.3em;
-    justify-content: left;
 }
 
 #probabilities {
+    margin: 0;
     padding: 0;
     align-items: left;
 }
 
 #probabilities .item:first-child {
     font-weight: bold;
-    color: #5b95e2;
+    color: #6f91d0;
 }
 
 .item {
@@ -76,6 +81,11 @@ body {
 }
 
 @media (max-width: 1100px) {
+    .scroller {
+        display: flex;
+        align-self: end;
+    }
+
     #prediction-section {
         display: block;
     }
@@ -92,12 +102,16 @@ body {
     .area {
         align-items: center;
     }
+
+    #btn-group {
+        align-self: center;
+    }
 }
 
 .btn {
     border: none;
     color: white;
-    background-color: #006eff;
+    background-color: #0075ff;
     border-radius: 10px;
     font-size: 1.125em;
     padding-block: .45em;
@@ -105,9 +119,51 @@ body {
 }
 
 .btn:hover {
-    background-color: #5b95e2;
+    background-color: #005cc8;
 }
 
 .btn:active {
-    background-color: #006eff;
+    background-color: #0075ff;
+}
+
+.default-btn {
+    border: none;
+    background-color: #181e27;
+    background-image: url('default.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 1em;
+}
+
+.default-btn:hover{
+    filter: opacity(.5);
+}
+
+.default-btn:active{
+    filter: opacity(1);
+}
+
+#loading-area {
+    width: 100vw; 
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    background-color: rgba(0, 0, 0, .75);
+    display: none;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#loading-image {
+    width: 5em;
+    animation: rotate .8s linear infinite;
 }
