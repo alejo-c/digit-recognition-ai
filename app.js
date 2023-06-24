@@ -47,6 +47,7 @@ const clear = () => {
     ctx.strokeStyle = 'white'
 
     scaleLabel.innerHTML = scale
+    lineWidthLabel.innerHTML = lineWidth
     digitConfidenceLabel.style.display = 'none'
     probabilities.innerHTML = ''
 
@@ -54,6 +55,8 @@ const clear = () => {
 }
 
 const startDrawing = e => {
+    e.preventDefault()
+
     isDrawing = true
     if (!allowsMultipleDraws)
         clear()
@@ -74,8 +77,10 @@ const reposition = e => {
 }
 
 const stopDrawing = () => {
-    if (!isDrawing)
-        return
+    if (isMobileDevice())
+        e.preventDefault()
+
+    if (!isDrawing) return
     isDrawing = false
 
     if (isMobileDevice())
@@ -214,9 +219,8 @@ const drawOutput = output => {
 }
 
 const predict = () => {
-    if (!itWasDrew)
-        return
-        loadingArea.style.display = 'flex'
+    if (!itWasDrew) return
+    loadingArea.style.display = 'flex'
 
     const digit = fixData(pixelMatrix)
     const input = tf.tensor4d([digit])
@@ -249,7 +253,11 @@ visualize28x28Checkbox.addEventListener('change', () => {
     clear()
 })
 defaultScaleBtn.addEventListener('click', () => {
-    updateScale(maxScale * .625)
+    if (isMobileDevice()) {
+        updateScale(Math.floor(window.innerWidth / 28 - 1))
+        scaleInput.setAttribute('max', scale)
+    } else
+        updateScale(maxScale * .625)
     clear()
 })
 defaultLineWidthBtn.addEventListener('click', () => {
@@ -261,8 +269,8 @@ canvas.addEventListener('mousedown', startDrawing)
 canvas.addEventListener('mouseup', stopDrawing)
 canvas.addEventListener('mouseout', stopDrawing)
 
-canvas.addEventListener('touchstart', startDrawing)
-canvas.addEventListener('touchend', stopDrawing)
+canvas.addEventListener('touchstart', startDrawing, false)
+canvas.addEventListener('touchend', stopDrawing, false)
 
 clearBtn.addEventListener('click', clear)
 predictBtn.addEventListener('click', predict)
